@@ -5,6 +5,7 @@ import com.estudos.libraryapi.model.Autor;
 import com.estudos.libraryapi.repository.AutorRepository;
 import com.estudos.libraryapi.repository.LivroRepository;
 import com.estudos.libraryapi.validator.AutorValidator;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor // lombok, para criar construtores com campos obrigatórios (campos finals).
 public class AutorService {
 
     // final quer dizer que precisa inicializar no construtor  as propriedades.
@@ -19,14 +21,6 @@ public class AutorService {
     private final AutorRepository autorRepository;
     private final AutorValidator autorValidator;
     private final LivroRepository livroRepository;
-
-    public AutorService(AutorRepository autorRepository,
-                        AutorValidator autorValidator,
-                        LivroRepository livroRepository) {
-        this.autorRepository = autorRepository;
-        this.autorValidator = autorValidator;
-        this.livroRepository = livroRepository;
-    }
 
     public Autor salvarAutor(Autor autor) {
         autorValidator.validar(autor);
