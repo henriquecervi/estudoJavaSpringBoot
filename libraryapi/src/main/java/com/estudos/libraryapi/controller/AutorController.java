@@ -2,6 +2,7 @@ package com.estudos.libraryapi.controller;
 
 import com.estudos.libraryapi.controller.dto.AutorDTO;
 import com.estudos.libraryapi.controller.dto.ErroResposta;
+import com.estudos.libraryapi.exceptions.OperacaoNaoPermitadaException;
 import com.estudos.libraryapi.exceptions.RegistroDuplicadoException;
 import com.estudos.libraryapi.model.Autor;
 import com.estudos.libraryapi.servive.AutorService;
@@ -63,17 +64,23 @@ public class AutorController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deletarAutor(@PathVariable("id") String id) {
+    public ResponseEntity<Object> deletarAutor(@PathVariable("id") String id) {
         // void é porque não estamos utilizando nada no "body"
-        var idAutor = UUID.fromString(id);
-        Optional<Autor> autorOptional = autorService.obterPorId(idAutor);
 
-        if(autorOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
+        try {
+            var idAutor = UUID.fromString(id);
+            Optional<Autor> autorOptional = autorService.obterPorId(idAutor);
+
+            if (autorOptional.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            autorService.deletarAutor(autorOptional.get());
+
+            return ResponseEntity.noContent().build();
+        } catch (OperacaoNaoPermitadaException e) {
+            var erroResposta = ErroResposta.respostaPadrao((e.getMessage()));
+            return ResponseEntity.status(erroResposta.status()).body(erroResposta);
         }
-        autorService.deletarAutor(autorOptional.get());
-
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping()

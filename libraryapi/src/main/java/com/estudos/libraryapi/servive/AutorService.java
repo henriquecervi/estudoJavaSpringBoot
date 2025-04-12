@@ -1,7 +1,9 @@
 package com.estudos.libraryapi.servive;
 
+import com.estudos.libraryapi.exceptions.OperacaoNaoPermitadaException;
 import com.estudos.libraryapi.model.Autor;
 import com.estudos.libraryapi.repository.AutorRepository;
+import com.estudos.libraryapi.repository.LivroRepository;
 import com.estudos.libraryapi.validator.AutorValidator;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +14,18 @@ import java.util.UUID;
 @Service
 public class AutorService {
 
+    // final quer dizer que precisa inicializar no construtor  as propriedades.
+
     private final AutorRepository autorRepository;
     private final AutorValidator autorValidator;
+    private final LivroRepository livroRepository;
 
-    public AutorService(AutorRepository autorRepository, AutorValidator autorValidator) {
+    public AutorService(AutorRepository autorRepository,
+                        AutorValidator autorValidator,
+                        LivroRepository livroRepository) {
         this.autorRepository = autorRepository;
         this.autorValidator = autorValidator;
+        this.livroRepository = livroRepository;
     }
 
     public Autor salvarAutor(Autor autor) {
@@ -38,6 +46,10 @@ public class AutorService {
     }
 
     public void deletarAutor(Autor autor) {
+        if(possuiLivro(autor)) {
+            throw new OperacaoNaoPermitadaException(
+                    "Não é permitido excluir um Autor que possui livros cadastrados.");
+        }
         autorRepository.delete(autor);
     }
 
@@ -55,6 +67,10 @@ public class AutorService {
         }
 
         return autorRepository.findAll();
+    }
+
+    public boolean possuiLivro(Autor autor) {
+        return livroRepository.existsByAutor(autor);
     }
 }
 
